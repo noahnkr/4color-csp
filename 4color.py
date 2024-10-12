@@ -12,27 +12,34 @@ def forward_check(domains, region, color, constraints):
     return updated_domains
 
 def get_mrv(assignments, regions, domains, constraints):
+    # Degree Hueristic for choosing starting region
+    if (len(assignments) == 0):
+        return max(constraints, key=lambda k: len(constraints[k]))
+
     unassigned = [region for region in regions if region not in assignments]
-    mrv_region = None
     mrv = float('inf')
 
+    # Find the unassigned region withthe minimum remaining values available.
     for u in unassigned:
         rv = len(domains[u])
         if rv < mrv:
             mrv = rv
             mrv_region = u
+        
 
     return mrv_region
 
 def count_solutions(assignments, regions, domains, constraints):
-    # All regions assigned valid color
+    # All regions assigned valid color. This is a solution.
     if len(assignments) == len(regions):
         return 1
 
-    # Select the region with the least amount of choices
+    # Select the region with the least amount of choices.
     region = get_mrv(assignments, regions, domains, constraints)
     count = 0
 
+    # Since we are counting solutions, we do not need to choose a 
+    # least constraining value since we are checking for all colors.
     for color in domains[region]:
         if is_valid(assignments, region, color, constraints):
             assignments[region] = color
@@ -47,8 +54,8 @@ def count_solutions(assignments, regions, domains, constraints):
 
 
 regions = ['WA', 'NT', 'SA', 'Q', 'V', 'NSW', 'T']
-colors = [ 'Red', 'Green', 'Blue']
-domains = { region: colors[:] for region in regions }
+colors = ['Red', 'Green', 'Blue', ]
+domains = {region: colors[:] for region in regions}
 constraints = {
     'WA': ['NT', 'SA'],
     'NT': ['WA', 'SA', 'Q'],
